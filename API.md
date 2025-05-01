@@ -93,8 +93,12 @@ Response (204 No Content)
 
 #### Get User Orders
 ```http
-GET /api/users/{user_id}/orders
+GET /api/users/{id}/orders
 ```
+
+Query Parameters:
+- `page` (optional): Page number for pagination (default: 1)
+- `limit` (optional): Number of items per page (default: 10)
 
 Response (200 OK):
 ```json
@@ -115,7 +119,10 @@ Response (200 OK):
                 }
             ]
         }
-    ]
+    ],
+    "total": 1,
+    "page": 1,
+    "limit": 10
 }
 ```
 
@@ -129,6 +136,8 @@ GET /api/restaurants
 Query Parameters:
 - `page` (optional): Page number for pagination (default: 1)
 - `limit` (optional): Number of items per page (default: 10)
+- `cuisine` (optional): Filter by cuisine type
+- `is_active` (optional): Filter by active status (true/false)
 
 Response (200 OK):
 ```json
@@ -171,12 +180,14 @@ Response (200 OK):
 
 #### Get Restaurant Dishes
 ```http
-GET /api/restaurants/{restaurant_id}/dishes
+GET /api/restaurants/{id}/dishes
 ```
 
 Query Parameters:
 - `page` (optional): Page number for pagination (default: 1)
 - `limit` (optional): Number of items per page (default: 10)
+- `category` (optional): Filter by dish category
+- `is_available` (optional): Filter by availability (true/false)
 
 Response (200 OK):
 ```json
@@ -298,6 +309,15 @@ Request Body:
     "status": "PREPARING"
 }
 ```
+
+Available Status Values:
+- `PENDING`
+- `CONFIRMED`
+- `PREPARING`
+- `READY_FOR_DELIVERY`
+- `OUT_FOR_DELIVERY`
+- `DELIVERED`
+- `CANCELLED`
 
 Response (200 OK):
 ```json
