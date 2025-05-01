@@ -284,26 +284,40 @@ The API documentation is available at `http://localhost:8080/swagger/index.html`
 
 1. Supported file types: JPG, JPEG, PNG
 2. Maximum file size: 5MB
-3. Image types:
+3. Image types and locations:
    - Restaurant logo (type: restaurant_logo)
+     - URL format: `/images/restaurant_logo/{restaurant_id}.jpg`
      - Recommended size: 400x400 pixels
      - Square aspect ratio
    - Restaurant cover image (type: restaurant_cover)
+     - URL format: `/images/restaurant_cover/{restaurant_id}.jpg`
      - Recommended size: 1200x400 pixels
      - Wide aspect ratio
    - Dish image (type: dish)
+     - URL format: `/images/dish/{dish_id}.jpg`
      - Recommended size: 400x400 pixels
      - Square aspect ratio
 
-4. Image URLs:
-   - Restaurant logos: `/images/restaurant_logo_X.jpg`
-   - Restaurant covers: `/images/restaurant_cover_X.jpg`
-   - Dish images: `/images/dish_X.jpg`
-
-5. Image Storage:
-   - Images are stored in the `uploads` directory
+4. Image Storage:
+   - Images are stored in the `uploads` directory with subdirectories for each type
    - Served through the `/images` endpoint
    - Old images are automatically deleted when replaced
+   - Directory structure:
+     ```
+     uploads/
+     ├── restaurant_logo/
+     │   ├── 1.jpg
+     │   ├── 2.jpg
+     │   └── ...
+     ├── restaurant_cover/
+     │   ├── 1.jpg
+     │   ├── 2.jpg
+     │   └── ...
+     └── dish/
+         ├── 1.jpg
+         ├── 2.jpg
+         └── ...
+     ```
 
 ## Contributing
 

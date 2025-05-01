@@ -116,3 +116,14 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// RegisterRoutes registers the routes for the user handler
+func (h *UserHandler) RegisterRoutes(router *gin.RouterGroup) {
+	users := router.Group("/users")
+	{
+		users.POST("", h.CreateUser)
+		users.GET("/:id", h.GetUserByID)
+		users.PUT("/:id", h.UpdateUser)
+		users.DELETE("/:id", h.DeleteUser)
+	}
+}

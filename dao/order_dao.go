@@ -43,3 +43,14 @@ func (dao *OrderDAO) UpdateStatus(orderID uint, status models.OrderStatus) error
 func (dao *OrderDAO) Update(order *models.Order) error {
 	return dao.db.Save(order).Error
 }
+
+func (dao *OrderDAO) GetAll() ([]models.Order, error) {
+	var orders []models.Order
+	err := dao.db.Preload("User").Preload("Restaurant").Preload("OrderItems.Dish").
+		Find(&orders).Error
+	return orders, err
+}
+
+func (dao *OrderDAO) Delete(id uint) error {
+	return dao.db.Delete(&models.Order{}, id).Error
+}

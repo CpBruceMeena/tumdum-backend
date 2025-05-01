@@ -26,7 +26,6 @@ go.work
 .DS_Store
 
 # Environment and config files
-.env
 config/config.yaml
 config/*.yaml
 !config/config.yaml.example

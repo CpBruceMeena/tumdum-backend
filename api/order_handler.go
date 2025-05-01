@@ -124,3 +124,87 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, order)
 }
+
+// @Summary Get all orders
+// @Description Get all orders
+// @Tags orders
+// @Produce json
+// @Success 200 {array} models.Order
+// @Failure 400 {object} map[string]string
+// @Router /orders [get]
+func (h *OrderHandler) GetAllOrders(c *gin.Context) {
+	orders, err := h.orderService.GetAllOrders()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, orders)
+}
+
+// @Summary Update order
+// @Description Update order details
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param id path int true "Order ID"
+// @Param order body models.Order true "Order object"
+// @Success 200 {object} models.Order
+// @Failure 400 {object} map[string]string
+// @Router /orders/{id} [put]
+func (h *OrderHandler) UpdateOrder(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	var order models.Order
+	if err := c.ShouldBindJSON(&order); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	order.ID = uint(id)
+	if err := h.orderService.UpdateOrder(&order); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, order)
+}
+
+// @Summary Delete order
+// @Description Delete an order
+// @Tags orders
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Router /orders/{id} [delete]
+func (h *OrderHandler) DeleteOrder(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	if err := h.orderService.DeleteOrder(uint(id)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Order deleted successfully"})
+}
+
+// RegisterRoutes registers the routes for the order handler
+func (h *OrderHandler) RegisterRoutes(router *gin.RouterGroup) {
+	orders := router.Group("/orders")
+	{
+		orders.POST("", h.CreateOrder)
+		orders.GET("", h.GetAllOrders)
+		orders.GET("/:id", h.GetOrderByID)
+		orders.PUT("/:id", h.UpdateOrder)
+		orders.DELETE("/:id", h.DeleteOrder)
+	}
+}

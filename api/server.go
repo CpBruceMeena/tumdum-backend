@@ -1,100 +1,77 @@
 package api
 
 import (
+	"fmt"
 	"tumdum_backend/business"
 	"tumdum_backend/config"
-	"tumdum_backend/dao"
-	"tumdum_backend/database"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 )
 
+// Server represents the API server
 type Server struct {
-	router *gin.Engine
-	db     *gorm.DB
+	router            *gin.Engine
+	db                *gorm.DB
+	restaurantService *business.RestaurantService
+	dishService       *business.DishService
+	orderService      *business.OrderService
+	userService       *business.UserService
+	config            *config.Config
 }
 
-func NewServer() (*Server, error) {
-	// Load configuration
-	cfg, err := config.LoadConfig("config/config.yaml")
-	if err != nil {
-		return nil, err
-	}
-
-	// Initialize database
-	db, err := database.InitDB(&cfg.Database)
-	if err != nil {
-		return nil, err
-	}
-
-	// Initialize router
+// NewServer creates a new API server
+func NewServer(
+	restaurantService *business.RestaurantService,
+	dishService *business.DishService,
+	orderService *business.OrderService,
+	userService *business.UserService,
+	config *config.Config,
+) *Server {
 	router := gin.Default()
 
-	// Initialize DAO and services
-	userDAO := dao.NewUserDAO(db)
-	restaurantDAO := dao.NewRestaurantDAO(db)
-	dishDAO := dao.NewDishDAO(db)
-	orderDAO := dao.NewOrderDAO(db)
-
-	userService := business.NewUserService(userDAO)
-	restaurantService := business.NewRestaurantService(restaurantDAO)
-	dishService := business.NewDishService(dishDAO)
-	orderService := business.NewOrderService(orderDAO, dishDAO, restaurantDAO)
-
 	// Initialize handlers
-	userHandler := NewUserHandler(userService)
-	restaurantHandler := NewRestaurantHandler(restaurantService)
-	dishHandler := NewDishHandler(dishService)
+	imageHandler := NewImageHandler("uploads")
+	restaurantHandler := NewRestaurantHandler(restaurantService, imageHandler, dishService)
+	dishHandler := NewDishHandler(dishService, imageHandler)
 	orderHandler := NewOrderHandler(orderService)
+	userHandler := NewUserHandler(userService)
 
-	// Setup routes
+	// Add CORS middleware
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
+	// Create API group
 	api := router.Group("/api")
-	{
-		// User routes
-		users := api.Group("/users")
-		{
-			users.POST("", userHandler.CreateUser)
-			users.GET("/:id", userHandler.GetUserByID)
-			users.PUT("/:id", userHandler.UpdateUser)
-			users.DELETE("/:id", userHandler.DeleteUser)
-			users.GET("/:user_id/orders", orderHandler.GetUserOrders)
-		}
 
-		// Restaurant routes
-		restaurants := api.Group("/restaurants")
-		{
-			restaurants.GET("", restaurantHandler.GetAllRestaurants)
-			restaurants.GET("/:id", restaurantHandler.GetRestaurantByID)
-			restaurants.GET("/:restaurant_id/dishes", dishHandler.GetDishesByRestaurantID)
-		}
+	// Register routes
+	restaurantHandler.RegisterRoutes(api)
+	dishHandler.RegisterRoutes(api)
+	orderHandler.RegisterRoutes(api)
+	userHandler.RegisterRoutes(api)
+	imageHandler.RegisterRoutes(api)
 
-		// Dish routes
-		dishes := api.Group("/dishes")
-		{
-			dishes.GET("/:id", dishHandler.GetDishByID)
-		}
-
-		// Order routes
-		orders := api.Group("/orders")
-		{
-			orders.POST("", orderHandler.CreateOrder)
-			orders.GET("/:id", orderHandler.GetOrderByID)
-			orders.PUT("/:id/status", orderHandler.UpdateOrderStatus)
-		}
-	}
-
-	// Setup Swagger
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Serve static files
+	router.Static("/images", "./uploads")
 
 	return &Server{
-		router: router,
-		db:     db,
-	}, nil
+		router:            router,
+		restaurantService: restaurantService,
+		dishService:       dishService,
+		orderService:      orderService,
+		userService:       userService,
+		config:            config,
+	}
 }
 
-func (s *Server) Start(port string) error {
-	return s.router.Run(":" + port)
+// Start starts the server
+func (s *Server) Start() error {
+	addr := fmt.Sprintf(":%d", s.config.Server.Port)
+	return s.router.Run(addr)
 }

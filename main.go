@@ -3,6 +3,10 @@ package main
 import (
 	"log"
 	"tumdum_backend/api"
+	"tumdum_backend/business"
+	"tumdum_backend/config"
+	"tumdum_backend/dao"
+	"tumdum_backend/database"
 )
 
 // @title Tumdum Backend API
@@ -11,13 +15,36 @@ import (
 // @host localhost:8080
 // @BasePath /api
 func main() {
-	server, err := api.NewServer()
+	// Load configuration
+	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
-		log.Fatalf("Failed to create server: %v", err)
+		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	log.Println("Server starting on port 8080...")
-	if err := server.Start("8080"); err != nil {
+	// Initialize database
+	db, err := database.InitDB(&cfg.Database)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	// Initialize DAOs
+	userDAO := dao.NewUserDAO(db)
+	restaurantDAO := dao.NewRestaurantDAO(db)
+	dishDAO := dao.NewDishDAO(db)
+	orderDAO := dao.NewOrderDAO(db)
+
+	// Initialize services
+	userService := business.NewUserService(userDAO)
+	restaurantService := business.NewRestaurantService(restaurantDAO)
+	dishService := business.NewDishService(dishDAO)
+	orderService := business.NewOrderService(orderDAO, dishDAO, restaurantDAO)
+
+	// Initialize server
+	server := api.NewServer(restaurantService, dishService, orderService, userService, cfg)
+
+	// Start server
+	log.Printf("Server starting on port %d...", cfg.Server.Port)
+	if err := server.Start(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
-} 
+}

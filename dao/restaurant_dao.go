@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"strconv"
 	"tumdum_backend/models"
 
 	"gorm.io/gorm"
@@ -27,9 +28,25 @@ func (dao *RestaurantDAO) GetByID(id uint) (*models.Restaurant, error) {
 	return &restaurant, nil
 }
 
-func (dao *RestaurantDAO) GetAll() ([]models.Restaurant, error) {
+func (dao *RestaurantDAO) GetAll(cuisine, isActive, city string) ([]models.Restaurant, error) {
 	var restaurants []models.Restaurant
-	err := dao.db.Find(&restaurants).Error
+	query := dao.db.Model(&models.Restaurant{})
+
+	// Apply filters if provided
+	if cuisine != "" {
+		query = query.Where("cuisine = ?", cuisine)
+	}
+	if isActive != "" {
+		active, err := strconv.ParseBool(isActive)
+		if err == nil {
+			query = query.Where("is_active = ?", active)
+		}
+	}
+	if city != "" {
+		query = query.Where("city = ?", city)
+	}
+
+	err := query.Find(&restaurants).Error
 	return restaurants, err
 }
 

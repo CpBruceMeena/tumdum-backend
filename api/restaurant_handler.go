@@ -149,7 +149,7 @@ func (h *RestaurantHandler) UpdateRestaurant(c *gin.Context) {
 }
 
 // Helper function to upload image
-func (h *RestaurantHandler) uploadImage(file *multipart.FileHeader, imageType string) (string, error) {
+func (h *RestaurantHandler) uploadImage(file *multipart.FileHeader, imageType string, restaurantID uint) (string, error) {
 	// Create a temporary file
 	src, err := file.Open()
 	if err != nil {
@@ -158,9 +158,16 @@ func (h *RestaurantHandler) uploadImage(file *multipart.FileHeader, imageType st
 	defer src.Close()
 
 	// Create a new file in the uploads directory
-	filename := fmt.Sprintf("%s_%d%s", imageType, time.Now().UnixNano(), filepath.Ext(file.Filename))
-	filepath := filepath.Join("uploads", filename)
-	dst, err := os.Create(filepath)
+	filename := fmt.Sprintf("%s_%d%s", imageType, restaurantID, filepath.Ext(file.Filename))
+	uploadPath := filepath.Join("uploads", filename)
+
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(uploadPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create directory: %v", err)
+	}
+
+	dst, err := os.Create(uploadPath)
 	if err != nil {
 		return "", err
 	}
@@ -240,4 +247,17 @@ func (h *RestaurantHandler) GetRestaurantDishes(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dishes)
+}
+
+// RegisterRoutes registers the routes for the restaurant handler
+func (h *RestaurantHandler) RegisterRoutes(router *gin.RouterGroup) {
+	restaurants := router.Group("/restaurants")
+	{
+		restaurants.POST("", h.CreateRestaurant)
+		restaurants.GET("", h.GetAllRestaurants)
+		restaurants.GET("/:id", h.GetRestaurantByID)
+		restaurants.PUT("/:id", h.UpdateRestaurant)
+		restaurants.DELETE("/:id", h.DeleteRestaurant)
+		restaurants.GET("/:id/dishes", h.GetRestaurantDishes)
+	}
 }

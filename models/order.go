@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type OrderStatus string
@@ -18,28 +16,26 @@ const (
 )
 
 type Order struct {
-	ID           uint           `gorm:"primarykey" json:"id"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
-	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
-	UserID       uint           `json:"user_id"`
-	User         User           `json:"user" gorm:"foreignKey:UserID"`
-	RestaurantID uint           `json:"restaurant_id"`
-	Restaurant   Restaurant     `json:"restaurant" gorm:"foreignKey:RestaurantID"`
-	Status       OrderStatus    `json:"status" gorm:"type:varchar(20);default:'PENDING'"`
-	TotalAmount  float64        `json:"total_amount"`
-	OrderItems   []OrderItem    `json:"order_items" gorm:"foreignKey:OrderID"`
+	ID           uint        `gorm:"primarykey" json:"id"`
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
+	UserID       uint        `json:"user_id"`
+	User         User        `json:"user" gorm:"foreignKey:UserID"`
+	RestaurantID uint        `json:"restaurant_id"`
+	Restaurant   Restaurant  `json:"restaurant" gorm:"foreignKey:RestaurantID"`
+	Status       OrderStatus `json:"status" gorm:"type:varchar(20);default:'PENDING'"`
+	TotalAmount  float64     `json:"total_amount"`
+	OrderItems   []OrderItem `json:"order_items" gorm:"foreignKey:OrderID"`
 }
 
 type OrderItem struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	OrderID   uint           `json:"order_id"`
-	Order     Order          `json:"-" gorm:"foreignKey:OrderID"`
-	DishID    uint           `json:"dish_id"`
-	Dish      Dish           `json:"dish" gorm:"foreignKey:DishID"`
-	Quantity  int            `json:"quantity"`
-	Price     float64        `json:"price"`
+	ID        uint      `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	OrderID   uint      `json:"order_id"`
+	Order     Order     `json:"-" gorm:"foreignKey:OrderID"`
+	DishID    uint      `json:"dish_id"`
+	Dish      Dish      `json:"dish" gorm:"foreignKey:DishID"`
+	Quantity  int       `json:"quantity"`
+	Price     float64   `json:"price"`
 }
