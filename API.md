@@ -10,7 +10,245 @@ http://localhost:8080/api
 
 ## Authentication
 
-Currently, the API does not require authentication. This will be implemented in future versions.
+The API uses JWT (JSON Web Token) for authentication. To access protected endpoints:
+
+1. Register a new user or login to get a JWT token
+2. Include the token in the Authorization header:
+   ```
+   Authorization: Bearer <your_token>
+   ```
+
+### Register User
+
+```http
+POST /api/users/register
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "Tumdum@123",
+    "phone": "+1234567890",
+    "address": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "country": "USA",
+    "postal_code": "10001"
+}
+```
+
+**Response:**
+```json
+{
+    "user": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com",
+        "phone": "+1234567890",
+        "address": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "country": "USA",
+        "postal_code": "10001",
+        "created_at": "2024-05-01T12:00:00Z",
+        "updated_at": "2024-05-01T12:00:00Z"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+### Login
+
+```http
+POST /api/users/login
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+    "email": "john@example.com",
+    "password": "Tumdum@123"
+}
+```
+
+**Response:**
+```json
+{
+    "user": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com",
+        "phone": "+1234567890",
+        "address": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "country": "USA",
+        "postal_code": "10001",
+        "created_at": "2024-05-01T12:00:00Z",
+        "updated_at": "2024-05-01T12:00:00Z"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
+## Protected Endpoints
+
+The following endpoints require authentication:
+
+### Users
+
+#### Get User by ID
+```http
+GET /api/users/{id}
+Authorization: Bearer <token>
+```
+
+#### Update User
+```http
+PUT /api/users/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Delete User
+```http
+DELETE /api/users/{id}
+Authorization: Bearer <token>
+```
+
+### Restaurants
+
+All restaurant endpoints require authentication:
+
+#### Get All Restaurants
+```http
+GET /api/restaurants
+Authorization: Bearer <token>
+```
+
+#### Get Restaurant by ID
+```http
+GET /api/restaurants/{id}
+Authorization: Bearer <token>
+```
+
+#### Create Restaurant
+```http
+POST /api/restaurants
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Update Restaurant
+```http
+PUT /api/restaurants/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Delete Restaurant
+```http
+DELETE /api/restaurants/{id}
+Authorization: Bearer <token>
+```
+
+#### Get Restaurant Dishes
+```http
+GET /api/restaurants/{id}/dishes
+Authorization: Bearer <token>
+```
+
+### Dishes
+
+All dish endpoints require authentication:
+
+#### Create Dish
+```http
+POST /api/restaurant-dishes/{restaurant_id}
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Get Restaurant Dishes
+```http
+GET /api/restaurant-dishes/{restaurant_id}
+Authorization: Bearer <token>
+```
+
+#### Get Dish by ID
+```http
+GET /api/restaurant-dishes/{restaurant_id}/{dish_id}
+Authorization: Bearer <token>
+```
+
+#### Update Dish
+```http
+PUT /api/restaurant-dishes/{restaurant_id}/{dish_id}
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Delete Dish
+```http
+DELETE /api/restaurant-dishes/{restaurant_id}/{dish_id}
+Authorization: Bearer <token>
+```
+
+### Orders
+
+All order endpoints require authentication:
+
+#### Create Order
+```http
+POST /api/orders
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Get All Orders
+```http
+GET /api/orders
+Authorization: Bearer <token>
+```
+
+#### Get Order by ID
+```http
+GET /api/orders/{id}
+Authorization: Bearer <token>
+```
+
+#### Update Order
+```http
+PUT /api/orders/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+#### Delete Order
+```http
+DELETE /api/orders/{id}
+Authorization: Bearer <token>
+```
+
+## Public Endpoints
+
+The following endpoints are publicly accessible:
+
+### User Registration and Login
+```http
+POST /api/users/register
+POST /api/users/login
+```
+
+### Image Management
+```http
+POST /api/images/upload
+DELETE /api/images
+```
 
 ## Image Management
 
@@ -34,22 +272,6 @@ Content-Type: multipart/form-data
     "url": "/images/restaurant_logo_1.jpg"
 }
 ```
-
-### Image URL Structure
-
-Images are organized by type and entity ID:
-
-1. Restaurant Logos:
-   - URL: `/images/restaurant_logo_{restaurant_id}.jpg`
-   - Example: `/images/restaurant_logo_1.jpg`
-
-2. Restaurant Cover Images:
-   - URL: `/images/restaurant_cover_{restaurant_id}.jpg`
-   - Example: `/images/restaurant_cover_1.jpg`
-
-3. Dish Images:
-   - URL: `/images/dish_{dish_id}.jpg`
-   - Example: `/images/dish_1.jpg`
 
 ### Delete Image
 
@@ -105,86 +327,6 @@ Content-Type: application/json
     "postal_code": "10001",
     "created_at": "2024-03-20T10:00:00Z",
     "updated_at": "2024-03-20T10:00:00Z"
-}
-```
-
-### Get User by ID
-
-Get user details by ID.
-
-```http
-GET /api/users/{id}
-```
-
-**Response:**
-```json
-{
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+1234567890",
-    "address": "123 Main St",
-    "city": "New York",
-    "state": "NY",
-    "country": "USA",
-    "postal_code": "10001",
-    "created_at": "2024-03-20T10:00:00Z",
-    "updated_at": "2024-03-20T10:00:00Z"
-}
-```
-
-### Update User
-
-Update user details.
-
-```http
-PUT /api/users/{id}
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-    "name": "John Smith",
-    "email": "john.smith@example.com",
-    "phone": "+1234567890",
-    "address": "456 Oak St",
-    "city": "Los Angeles",
-    "state": "CA",
-    "country": "USA",
-    "postal_code": "90001"
-}
-```
-
-**Response:**
-```json
-{
-    "id": 1,
-    "name": "John Smith",
-    "email": "john.smith@example.com",
-    "phone": "+1234567890",
-    "address": "456 Oak St",
-    "city": "Los Angeles",
-    "state": "CA",
-    "country": "USA",
-    "postal_code": "90001",
-    "created_at": "2024-03-20T10:00:00Z",
-    "updated_at": "2024-03-20T11:00:00Z"
-}
-```
-
-### Delete User
-
-Delete a user.
-
-```http
-DELETE /api/users/{id}
-```
-
-**Response:**
-```json
-{
-    "message": "User deleted successfully"
 }
 ```
 
@@ -566,7 +708,7 @@ DELETE /api/restaurant-dishes/{restaurant_id}/{dish_id}
 Create a new order.
 
 ```http
-POST /orders
+POST /api/orders
 Content-Type: application/json
 ```
 
@@ -611,7 +753,7 @@ Content-Type: application/json
 Get a list of all orders.
 
 ```http
-GET /orders
+GET /api/orders
 ```
 
 **Response:**
@@ -643,7 +785,7 @@ GET /orders
 Get order details by ID.
 
 ```http
-GET /orders/{id}
+GET /api/orders/{id}
 ```
 
 **Response:**
@@ -673,7 +815,7 @@ GET /orders/{id}
 Update order details.
 
 ```http
-PUT /orders/{id}
+PUT /api/orders/{id}
 Content-Type: application/json
 ```
 
@@ -719,7 +861,7 @@ Content-Type: application/json
 Delete an order.
 
 ```http
-DELETE /orders/{id}
+DELETE /api/orders/{id}
 ```
 
 **Response:**
@@ -732,6 +874,19 @@ DELETE /orders/{id}
 ## Error Responses
 
 All endpoints may return the following error responses:
+
+### 401 Unauthorized
+```json
+{
+    "error": "authorization header is required"
+}
+```
+or
+```json
+{
+    "error": "invalid token"
+}
+```
 
 ### 400 Bad Request
 ```json
@@ -769,4 +924,8 @@ Orders follow this status flow:
 3. Image types:
    - Restaurant logo (type: restaurant_logo)
    - Restaurant cover image (type: restaurant_cover)
-   - Dish image (type: dish) 
+   - Dish image (type: dish)
+4. Image URLs:
+   - Restaurant logo: `/images/restaurant_logo_{restaurant_id}.jpg`
+   - Restaurant cover: `/images/restaurant_cover_{restaurant_id}.jpg`
+   - Dish image: `/images/dish_{dish_id}.jpg` 
