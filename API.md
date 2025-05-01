@@ -19,7 +19,7 @@ Currently, the API does not require authentication. This will be implemented in 
 Upload an image file (restaurant logo, cover image, or dish image).
 
 ```http
-POST /images/upload
+POST /api/images/upload
 Content-Type: multipart/form-data
 ```
 
@@ -31,7 +31,7 @@ Content-Type: multipart/form-data
 **Response:**
 ```json
 {
-    "url": "/images/restaurant_logo/1.jpg"
+    "url": "/images/restaurant_logo_1.jpg"
 }
 ```
 
@@ -56,7 +56,7 @@ Images are organized by type and entity ID:
 Delete an uploaded image.
 
 ```http
-DELETE /images?url=/images/restaurant_logo_1.jpg
+DELETE /api/images?url=/images/restaurant_logo_1.jpg
 ```
 
 **Response:**
@@ -73,7 +73,7 @@ DELETE /images?url=/images/restaurant_logo_1.jpg
 Create a new user.
 
 ```http
-POST /users
+POST /api/users
 Content-Type: application/json
 ```
 
@@ -113,7 +113,7 @@ Content-Type: application/json
 Get user details by ID.
 
 ```http
-GET /users/{id}
+GET /api/users/{id}
 ```
 
 **Response:**
@@ -138,7 +138,7 @@ GET /users/{id}
 Update user details.
 
 ```http
-PUT /users/{id}
+PUT /api/users/{id}
 Content-Type: application/json
 ```
 
@@ -178,7 +178,7 @@ Content-Type: application/json
 Delete a user.
 
 ```http
-DELETE /users/{id}
+DELETE /api/users/{id}
 ```
 
 **Response:**
@@ -227,7 +227,7 @@ GET /users/{user_id}/orders
 Create a new restaurant with logo and cover image.
 
 ```http
-POST /restaurants
+POST /api/restaurants
 Content-Type: multipart/form-data
 ```
 
@@ -275,7 +275,7 @@ Content-Type: multipart/form-data
 Get a list of all restaurants with optional filters.
 
 ```http
-GET /restaurants?cuisine=Italian&is_active=true&city=Chicago
+GET /api/restaurants?cuisine=Italian&is_active=true&city=Chicago
 ```
 
 **Query Parameters:**
@@ -313,7 +313,7 @@ GET /restaurants?cuisine=Italian&is_active=true&city=Chicago
 Get restaurant details by ID.
 
 ```http
-GET /restaurants/{id}
+GET /api/restaurants/{id}
 ```
 
 **Response:**
@@ -344,7 +344,7 @@ GET /restaurants/{id}
 Update restaurant details.
 
 ```http
-PUT /restaurants/{id}
+PUT /api/restaurants/{id}
 Content-Type: multipart/form-data
 ```
 
@@ -392,7 +392,7 @@ Content-Type: multipart/form-data
 Delete a restaurant.
 
 ```http
-DELETE /restaurants/{id}
+DELETE /api/restaurants/{id}
 ```
 
 **Response:**
@@ -402,6 +402,32 @@ DELETE /restaurants/{id}
 }
 ```
 
+### Get Restaurant's Dishes
+
+Get all dishes for a specific restaurant.
+
+```http
+GET /api/restaurants/{id}/dishes
+```
+
+**Response:**
+```json
+[
+    {
+        "id": 1,
+        "restaurant_id": 1,
+        "name": "Margherita Pizza",
+        "description": "Classic tomato and mozzarella pizza",
+        "price": 12.99,
+        "category": "Pizza",
+        "image_url": "/images/dish/1.jpg",
+        "is_available": true,
+        "created_at": "2024-03-20T10:00:00Z",
+        "updated_at": "2024-03-20T10:00:00Z"
+    }
+]
+```
+
 ## Dishes
 
 ### Create Dish
@@ -409,7 +435,7 @@ DELETE /restaurants/{id}
 Create a new dish with image.
 
 ```http
-POST /restaurants/{restaurant_id}/dishes
+POST /api/restaurant-dishes/{restaurant_id}
 Content-Type: multipart/form-data
 ```
 
@@ -441,7 +467,7 @@ Content-Type: multipart/form-data
 Get all dishes for a specific restaurant.
 
 ```http
-GET /restaurants/{restaurant_id}/dishes
+GET /api/restaurant-dishes/{restaurant_id}
 ```
 
 **Response:**
@@ -467,7 +493,7 @@ GET /restaurants/{restaurant_id}/dishes
 Get dish details by ID.
 
 ```http
-GET /restaurants/{restaurant_id}/dishes/{dish_id}
+GET /api/restaurant-dishes/{restaurant_id}/{dish_id}
 ```
 
 **Response:**
@@ -491,7 +517,7 @@ GET /restaurants/{restaurant_id}/dishes/{dish_id}
 Update dish details.
 
 ```http
-PUT /restaurants/{restaurant_id}/dishes/{dish_id}
+PUT /api/restaurant-dishes/{restaurant_id}/{dish_id}
 Content-Type: multipart/form-data
 ```
 
@@ -523,7 +549,7 @@ Content-Type: multipart/form-data
 Delete a dish.
 
 ```http
-DELETE /restaurants/{restaurant_id}/dishes/{dish_id}
+DELETE /api/restaurant-dishes/{restaurant_id}/{dish_id}
 ```
 
 **Response:**

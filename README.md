@@ -60,8 +60,8 @@ tumdum_backend/
      database:
        host: localhost
        port: 5432
-       username: your_db_user
-       password: your_db_password
+       user: postgres
+       password: postgres
        dbname: tumdum
        sslmode: disable
 
@@ -165,6 +165,7 @@ The API documentation is available at `http://localhost:8080/swagger/index.html`
   - Parameters:
     - file: Image file (required)
     - type: Image type (restaurant_logo, restaurant_cover, dish) (required)
+    - id: ID of the entity (restaurant_id or dish_id) (required)
   - Returns: Image URL and metadata
 
 - DELETE /api/images
@@ -192,15 +193,10 @@ The API documentation is available at `http://localhost:8080/swagger/index.html`
   - Delete user
   - Returns: Success message
 
-- GET /api/users/{id}/orders
-  - Get user's orders
-  - Returns: List of orders
-
 #### Restaurants
 - POST /api/restaurants
   - Create a new restaurant
   - Body: Restaurant details (name, description, email, phone, address, city, state, country, postal_code, cuisine, rating, is_active)
-  - Optional: logo and cover image files
   - Returns: Created restaurant details
 
 - GET /api/restaurants
@@ -218,12 +214,15 @@ The API documentation is available at `http://localhost:8080/swagger/index.html`
 - PUT /api/restaurants/{id}
   - Update restaurant
   - Body: Updated restaurant details
-  - Optional: New logo and cover image files
   - Returns: Updated restaurant details
 
 - DELETE /api/restaurants/{id}
   - Delete restaurant
   - Returns: Success message
+
+- GET /api/restaurants/{id}/dishes
+  - Get restaurant's dishes
+  - Returns: List of dishes
 
 #### Dishes
 - POST /api/restaurant-dishes/{restaurant_id}
@@ -253,71 +252,28 @@ The API documentation is available at `http://localhost:8080/swagger/index.html`
   - Delete dish
   - Returns: Success message
 
-#### Orders
-- POST /api/orders
-  - Create a new order
-  - Body: Order details (user_id, restaurant_id, items, delivery_address)
-  - Returns: Created order details
-
-- GET /api/orders
-  - List all orders
-  - Query Parameters:
-    - status: Filter by order status
-    - user_id: Filter by user
-    - restaurant_id: Filter by restaurant
-  - Returns: List of orders
-
-- GET /api/orders/{id}
-  - Get order by ID
-  - Returns: Order details
-
-- PUT /api/orders/{id}
-  - Update order
-  - Body: Updated order details
-  - Returns: Updated order details
-
-- DELETE /api/orders/{id}
-  - Delete order
-  - Returns: Success message
-
 ### Image Upload Guidelines
 
 1. Supported file types: JPG, JPEG, PNG
 2. Maximum file size: 5MB
 3. Image types and locations:
    - Restaurant logo (type: restaurant_logo)
-     - URL format: `/images/restaurant_logo/{restaurant_id}.jpg`
+     - URL format: `/images/restaurant_logo_{restaurant_id}.jpg`
      - Recommended size: 400x400 pixels
      - Square aspect ratio
    - Restaurant cover image (type: restaurant_cover)
-     - URL format: `/images/restaurant_cover/{restaurant_id}.jpg`
+     - URL format: `/images/restaurant_cover_{restaurant_id}.jpg`
      - Recommended size: 1200x400 pixels
      - Wide aspect ratio
    - Dish image (type: dish)
-     - URL format: `/images/dish/{dish_id}.jpg`
+     - URL format: `/images/dish_{dish_id}.jpg`
      - Recommended size: 400x400 pixels
      - Square aspect ratio
 
 4. Image Storage:
-   - Images are stored in the `uploads` directory with subdirectories for each type
+   - Images are stored in the `uploads` directory
    - Served through the `/images` endpoint
    - Old images are automatically deleted when replaced
-   - Directory structure:
-     ```
-     uploads/
-     ├── restaurant_logo/
-     │   ├── 1.jpg
-     │   ├── 2.jpg
-     │   └── ...
-     ├── restaurant_cover/
-     │   ├── 1.jpg
-     │   ├── 2.jpg
-     │   └── ...
-     └── dish/
-         ├── 1.jpg
-         ├── 2.jpg
-         └── ...
-     ```
 
 ## Contributing
 
@@ -329,97 +285,4 @@ The API documentation is available at `http://localhost:8080/swagger/index.html`
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-### Restaurant Endpoints
-
-#### Get All Restaurants
-- **GET** `/api/restaurants`
-- **Description**: Get a list of all restaurants
-- **Query Parameters**:
-  - `cuisine` (optional): Filter by cuisine type
-  - `rating` (optional): Filter by minimum rating
-  - `is_active` (optional): Filter by active status
-- **Response**: List of restaurants with their details
-
-#### Get Restaurant by ID
-- **GET** `/api/restaurants/:id`
-- **Description**: Get details of a specific restaurant
-- **Response**: Restaurant details including name, description, contact info, location, cuisine, and rating
-
-#### Get Restaurant Dishes
-- **GET** `/api/restaurants/:id/dishes`
-- **Description**: Get all dishes for a specific restaurant
-- **Response**: List of dishes with their details including name, description, price, category, and availability
-
-#### Create Restaurant
-- **POST** `/api/restaurants`
-- **Description**: Create a new restaurant
-- **Body**:
-  ```json
-  {
-    "name": "string",
-    "description": "string",
-    "email": "string",
-    "phone": "string",
-    "address": "string",
-    "city": "string",
-    "state": "string",
-    "country": "string",
-    "postal_code": "string",
-    "cuisine": "string",
-    "rating": "number",
-    "is_active": "boolean"
-  }
-  ```
-- **Response**: Created restaurant details
-
-#### Update Restaurant
-- **PUT** `/api/restaurants/:id`
-- **Description**: Update an existing restaurant
-- **Body**: Same as Create Restaurant
-- **Response**: Updated restaurant details
-
-#### Delete Restaurant
-- **DELETE** `/api/restaurants/:id`
-- **Description**: Delete a restaurant
-- **Response**: Success message
-
-### Dish Endpoints
-
-#### Get Dishes by Restaurant ID
-- **GET** `/api/restaurant-dishes/:restaurant_id`
-- **Description**: Get all dishes for a specific restaurant
-- **Response**: List of dishes with their details
-
-#### Get Dish by ID
-- **GET** `/api/restaurant-dishes/:restaurant_id/:dish_id`
-- **Description**: Get details of a specific dish
-- **Response**: Dish details including name, description, price, and category
-
-#### Create Dish
-- **POST** `/api/restaurant-dishes/:restaurant_id`
-- **Description**: Create a new dish for a restaurant
-- **Body**:
-  ```json
-  {
-    "name": "string",
-    "description": "string",
-    "price": "number",
-    "category": "string",
-    "is_available": "boolean",
-    "image_url": "string"
-  }
-  ```
-- **Response**: Created dish details
-
-#### Update Dish
-- **PUT** `/api/restaurant-dishes/:restaurant_id/:dish_id`
-- **Description**: Update an existing dish
-- **Body**: Same as Create Dish
-- **Response**: Updated dish details
-
-#### Delete Dish
-- **DELETE** `/api/restaurant-dishes/:restaurant_id/:dish_id`
-- **Description**: Delete a dish
-- **Response**: Success message 
+This project is licensed under the MIT License - see the LICENSE file for details. 
