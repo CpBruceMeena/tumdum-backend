@@ -37,34 +37,64 @@ A Go-based backend service for the Tumdum food delivery platform.
    ```
 
 4. Configure the application:
-   - Copy `config/config.yaml.example` to `config/config.yaml`
-   - Update the configuration values in `config/config.yaml`
+   - Copy the example config file:
+     ```bash
+     cp config/config.yaml.example config/config.yaml
+     ```
+   - Update the configuration values in `config/config.yaml`:
+     - Set your database credentials
+     - Set a secure JWT secret key
+     - Adjust other settings as needed
 
 ## Configuration
 
-The application uses a YAML configuration file (`config/config.yaml`) with the following structure:
+The application uses a YAML configuration file (`config/config.yaml`). A sample configuration file (`config.yaml.example`) is provided as a template. Never commit your actual `config.yaml` file to version control.
+
+### Configuration Structure
 
 ```yaml
+# Database Configuration
 database:
   host: localhost
   port: 5432
-  user: postgres
-  password: your_password
+  user: your_db_user
+  password: your_db_password
   name: tumdum
   ssl_mode: disable
 
+# Server Configuration
 server:
   port: 8080
   host: localhost
 
+# JWT Configuration
 jwt:
-  secret: your_jwt_secret_key
+  secret: your_jwt_secret_key_here
   expiration: 24h
 
+# API Configuration
 api:
   version: v1
   prefix: /api
+
+# Image Upload Configuration
+upload:
+  max_size: 5242880  # 5MB in bytes
+  allowed_types:
+    - image/jpeg
+    - image/png
+  upload_dir: uploads
 ```
+
+### Security Notes
+
+1. Never commit `config.yaml` to version control
+2. Use strong, unique passwords for database access
+3. Use a strong, random string for JWT secret
+4. In production:
+   - Use environment variables for sensitive data
+   - Enable SSL for database connections
+   - Use HTTPS for API endpoints
 
 ## Running the Application
 

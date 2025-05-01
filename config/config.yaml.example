@@ -1,0 +1,31 @@
+# Database Configuration
+database:
+  host: localhost
+  port: 5432
+  user: your_db_user
+  password: your_db_password
+  name: tumdum
+  ssl_mode: disable
+
+# Server Configuration
+server:
+  port: 8080
+  host: localhost
+
+# JWT Configuration
+jwt:
+  secret: your_jwt_secret_key_here
+  expiration: 24h
+
+# API Configuration
+api:
+  version: v1
+  prefix: /api
+
+# Image Upload Configuration
+upload:
+  max_size: 5242880  # 5MB in bytes
+  allowed_types:
+    - image/jpeg
+    - image/png
+  upload_dir: uploads 
