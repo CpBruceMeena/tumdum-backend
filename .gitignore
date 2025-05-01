@@ -1,4 +1,14 @@
-# Binaries for programs and plugins
+# Environment variables
+.env
+.env.*
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Binary files
 *.exe
 *.exe~
 *.dll
@@ -18,12 +28,8 @@ vendor/
 # Go workspace file
 go.work
 
-# IDE specific files
-.idea/
-.vscode/
-*.swp
-*.swo
-.DS_Store
+# Uploads directory
+uploads/
 
 # Environment and config files
 config/config.yaml

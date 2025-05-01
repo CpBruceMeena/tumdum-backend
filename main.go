@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"tumdum_backend/api"
+	"tumdum_backend/auth"
 	"tumdum_backend/business"
 	"tumdum_backend/config"
 	"tumdum_backend/dao"
@@ -20,6 +21,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	// Initialize auth package
+	auth.Initialize(&cfg.JWT)
 
 	// Initialize database
 	db, err := database.InitDB(&cfg.Database)
@@ -39,8 +43,11 @@ func main() {
 	dishService := business.NewDishService(dishDAO)
 	orderService := business.NewOrderService(orderDAO, dishDAO, restaurantDAO)
 
+	// Initialize image handler
+	imageHandler := api.NewImageHandler("uploads")
+
 	// Initialize server
-	server := api.NewServer(restaurantService, dishService, orderService, userService, cfg)
+	server := api.NewServer(restaurantService, dishService, orderService, userService, cfg, imageHandler)
 
 	// Start server
 	log.Printf("Server starting on port %d...", cfg.Server.Port)

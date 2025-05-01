@@ -11,6 +11,8 @@ import (
 type Config struct {
 	Database DatabaseConfig `yaml:"database"`
 	Server   ServerConfig   `yaml:"server"`
+	JWT      JWTConfig      `yaml:"jwt"`
+	API      APIConfig      `yaml:"api"`
 }
 
 type DatabaseConfig struct {
@@ -24,6 +26,14 @@ type DatabaseConfig struct {
 
 type ServerConfig struct {
 	Port int `yaml:"port"`
+}
+
+type JWTConfig struct {
+	Secret string `yaml:"secret"`
+}
+
+type APIConfig struct {
+	UnsplashAccessKey string `yaml:"unsplash_access_key"`
 }
 
 // LoadConfig loads configuration from environment variables
