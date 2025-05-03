@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"log"
 	"tumdum_backend/models"
 
 	"gorm.io/gorm"
@@ -15,7 +16,13 @@ func NewUserDAO(db *gorm.DB) *UserDAO {
 }
 
 func (dao *UserDAO) Create(user *models.User) error {
-	return dao.db.Create(user).Error
+	result := dao.db.Create(user)
+	if result.Error != nil {
+		log.Printf("Error creating user: %v", result.Error)
+		return result.Error
+	}
+	log.Printf("Successfully created user with ID: %d", user.ID)
+	return nil
 }
 
 func (dao *UserDAO) GetByID(id uint) (*models.User, error) {

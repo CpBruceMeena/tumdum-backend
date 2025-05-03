@@ -1,15 +1,31 @@
--- Create users table
+-- Drop existing users table if exists
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Create users table with all required fields
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     address TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    country VARCHAR(50) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
     CONSTRAINT users_email_unique UNIQUE (email)
 );
+
+-- Create index for email search
+CREATE INDEX idx_users_email ON users(email);
+
+-- Create trigger for updated_at
+CREATE TRIGGER update_users_updated_at
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Create restaurants table
 CREATE TABLE restaurants (
@@ -96,10 +112,6 @@ CREATE TABLE order_items (
 
 -- Create simple indexes for better query performance
 
--- Users table indexes
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_phone ON users(phone);
-
 -- Restaurants table indexes
 CREATE INDEX idx_restaurants_name ON restaurants(name);
 CREATE INDEX idx_restaurants_cuisine ON restaurants(cuisine);
@@ -125,12 +137,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ language 'plpgsql';
-
--- Create triggers to automatically update updated_at
-CREATE TRIGGER update_users_updated_at
-    BEFORE UPDATE ON users
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_restaurants_updated_at
     BEFORE UPDATE ON restaurants

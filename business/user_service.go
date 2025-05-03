@@ -3,6 +3,7 @@ package business
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"tumdum_backend/auth"
 	"tumdum_backend/dao"
 	"tumdum_backend/models"
@@ -17,13 +18,14 @@ func NewUserService(userDAO *dao.UserDAO) *UserService {
 }
 
 func (s *UserService) CreateUser(user *models.User) error {
-	// Check if user with same email exists
-	existingUser, err := s.userDAO.GetByEmail(user.Email)
-	if err == nil && existingUser != nil {
-		return errors.New("user with this email already exists")
+	err := s.userDAO.Create(user)
+	if err != nil {
+		if strings.Contains(err.Error(), "users_email_unique") {
+			return errors.New("user with this email already exists")
+		}
+		return err
 	}
-
-	return s.userDAO.Create(user)
+	return nil
 }
 
 func (s *UserService) GetUser(id string) (*models.User, error) {
