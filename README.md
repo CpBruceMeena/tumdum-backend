@@ -1,6 +1,6 @@
 # Tumdum Backend
 
-A Go-based backend service for the Tumdum food delivery platform.
+A Go-based backend service for the Tumdum application, providing user management, authentication, and other core functionalities.
 
 ## Features
 
@@ -15,14 +15,35 @@ A Go-based backend service for the Tumdum food delivery platform.
 ## Prerequisites
 
 - Go 1.21 or higher
-- PostgreSQL 15 or higher
+- PostgreSQL 12 or higher
 - Make (optional, for using Makefile commands)
 
-## Installation
+## Quick Start
+
+The easiest way to get started is using the provided run script:
+
+```bash
+# Make the script executable (first time only)
+chmod +x run.sh
+
+# Run the application
+./run.sh
+```
+
+The script will:
+1. Check for required dependencies
+2. Set up configuration files if they don't exist
+3. Install dependencies
+4. Run database migrations
+5. Build and start the application
+
+## Manual Setup
+
+If you prefer to set up manually, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tumdum-backend.git
+   git clone https://github.com/CpBruceMeena/tumdum-backend.git
    cd tumdum-backend
    ```
 
@@ -31,131 +52,115 @@ A Go-based backend service for the Tumdum food delivery platform.
    go mod download
    ```
 
-3. Create a PostgreSQL database:
-   ```sql
-   CREATE DATABASE tumdum;
+3. Set up configuration:
+   ```bash
+   # Copy example configuration files
+   cp .env.example .env
+   cp config/config.yaml.example config/config.yaml
+   
+   # Update the configuration files with your values
    ```
 
-4. Configure the application:
-   - Copy the example config file:
-     ```bash
-     cp config/config.yaml.example config/config.yaml
-     ```
-   - Update the configuration values in `config/config.yaml`:
-     - Set your database credentials
-     - Set a secure JWT secret key
-     - Adjust other settings as needed
+4. Set up the database:
+   ```bash
+   # Create the database
+   createdb tumdum
+   
+   # Run migrations
+   psql -U postgres -f database/sql/schema.sql
+   ```
+
+5. Build and run:
+   ```bash
+   go build -o tumdum-backend
+   ./tumdum-backend
+   ```
 
 ## Configuration
 
-The application uses a YAML configuration file (`config/config.yaml`). A sample configuration file (`config.yaml.example`) is provided as a template. Never commit your actual `config.yaml` file to version control.
+The application uses two configuration files:
 
-### Configuration Structure
+1. `.env` - Environment variables
+2. `config/config.yaml` - Application configuration
+
+Make sure to update both files with your specific values. Never commit the actual configuration files to version control.
+
+### Environment Variables (.env)
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=tumdum
+DB_SSL_MODE=disable
+
+# Server Configuration
+SERVER_PORT=8080
+SERVER_HOST=localhost
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRATION=24h
+
+# API Configuration
+API_VERSION=v1
+API_PREFIX=/api
+
+# Image Upload Configuration
+UPLOAD_MAX_SIZE=5242880
+UPLOAD_ALLOWED_TYPES=image/jpeg,image/png,image/gif
+UPLOAD_DIR=uploads
+```
+
+### Application Configuration (config.yaml)
 
 ```yaml
-# Database Configuration
 database:
   host: localhost
   port: 5432
-  user: your_db_user
-  password: your_db_password
+  user: postgres
+  password: your_password
   name: tumdum
   ssl_mode: disable
 
-# Server Configuration
 server:
   port: 8080
   host: localhost
 
-# JWT Configuration
 jwt:
-  secret: your_jwt_secret_key_here
+  secret: your_jwt_secret
   expiration: 24h
 
-# API Configuration
 api:
   version: v1
   prefix: /api
 
-# Image Upload Configuration
 upload:
-  max_size: 5242880  # 5MB in bytes
+  max_size: 5242880
   allowed_types:
     - image/jpeg
     - image/png
-  upload_dir: uploads
+    - image/gif
+  directory: uploads
 ```
 
-### Security Notes
+## Security Notes
 
-1. Never commit `config.yaml` to version control
-2. Use strong, unique passwords for database access
-3. Use a strong, random string for JWT secret
-4. In production:
-   - Use environment variables for sensitive data
-   - Enable SSL for database connections
-   - Use HTTPS for API endpoints
-
-## Running the Application
-
-1. Start the server:
-   ```bash
-   go run main.go
-   ```
-
-   Or using Make:
-   ```bash
-   make run
-   ```
-
-2. The server will start on `http://localhost:8080`
+1. Never commit sensitive information like passwords or API keys
+2. Use strong passwords in production
+3. Enable SSL in production
+4. Keep your dependencies updated
+5. Use environment variables for sensitive data
 
 ## API Documentation
 
-The API documentation is available in [API.md](API.md) and [docs/AUTH.md](docs/AUTH.md). Here's a quick overview of the main endpoints:
+For detailed API documentation, please refer to [API.md](API.md).
 
-### Authentication
+## Authentication
 
-1. Register a new user:
-   ```bash
-   curl -X POST http://localhost:8080/api/users/register \
-     -H "Content-Type: application/json" \
-     -d '{
-       "name": "John Doe",
-       "email": "john@example.com",
-       "password": "Tumdum@123",
-       "phone": "+1234567890",
-       "address": "123 Main St",
-       "city": "New York",
-       "state": "NY",
-       "country": "USA",
-       "postal_code": "10001"
-     }'
-   ```
-
-2. Login:
-   ```bash
-   curl -X POST http://localhost:8080/api/users/login \
-     -H "Content-Type: application/json" \
-     -d '{
-       "email": "john@example.com",
-       "password": "Tumdum@123"
-     }'
-   ```
-
-3. Use the JWT token for authenticated requests:
-   ```bash
-   curl -X GET http://localhost:8080/api/restaurants \
-     -H "Authorization: Bearer <your_token>"
-   ```
-
-### Protected Endpoints
-
-All endpoints except registration, login, and image upload require authentication. Include the JWT token in the Authorization header:
-
-```bash
-Authorization: Bearer <your_token>
-```
+For authentication details and JWT implementation, please refer to [docs/AUTH.md](docs/AUTH.md).
 
 ## Development
 
@@ -164,46 +169,38 @@ Authorization: Bearer <your_token>
 ```
 .
 ├── api/            # API handlers and routes
-├── auth/           # Authentication package
+├── auth/           # Authentication related code
 ├── business/       # Business logic layer
-├── config/         # Configuration
+├── config/         # Configuration management
 ├── dao/            # Data Access Objects
-├── database/       # Database initialization and migrations
+├── database/       # Database related code
+├── docs/           # Documentation
 ├── middleware/     # HTTP middleware
 ├── models/         # Data models
-├── uploads/        # Uploaded images
-├── main.go         # Application entry point
-└── Makefile        # Build and development commands
+└── utils/          # Utility functions
 ```
 
-### Available Make Commands
+### Running Tests
 
-- `make run`: Run the application
-- `make build`: Build the application
-- `make test`: Run tests
-- `make clean`: Clean build artifacts
-- `make migrate`: Run database migrations
-- `make seed`: Seed the database with sample data
-
-## Testing
-
-Run the test suite:
 ```bash
 go test ./...
 ```
 
-Or using Make:
+### Code Style
+
+The project follows standard Go code style guidelines. Use `gofmt` to format your code:
+
 ```bash
-make test
+gofmt -w .
 ```
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
